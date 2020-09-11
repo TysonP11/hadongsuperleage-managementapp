@@ -23,7 +23,7 @@ import com.PingPongManagement.models.TeamParticipation;
 import com.PingPongManagement.services.MatchService;
 
 @RestController
-@RequestMapping("api/match")
+@RequestMapping("/api/match")
 public class MatchController {
 
 	@Autowired
@@ -49,6 +49,7 @@ public class MatchController {
 	
 	@GetMapping("/get-by-league/{leagueId}")
 	public ResponseEntity<?> getMatchesByLeague(@PathVariable Integer leagueId) {
+		System.out.println("controller");
 		try {
 			List<Match> matches = matchService.findMatchesByLeagueId(leagueId);
 			
@@ -56,6 +57,8 @@ public class MatchController {
 				return new ResponseEntity<>(new ResponseMessage("This league has no matches!"),
                         HttpStatus.OK);
 			}
+			
+			
 			
 			return new ResponseEntity<>(matches, HttpStatus.OK);
 			

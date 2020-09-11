@@ -33,7 +33,7 @@ public class TeamParticipation {
 	private int ranking;
 	
 	@NotNull
-	private int points;
+	private Double points;
 
 	@ManyToOne
 	@JoinColumn(name = "teamId", referencedColumnName = "teamId")
@@ -43,9 +43,10 @@ public class TeamParticipation {
 	@JoinColumn(name = "leagueId", referencedColumnName = "leagueId")
 	private League league;
 
-	public TeamParticipation(Integer teamParticipationId, @NotNull String series, @NotNull String group,
-			@NotNull int ranking, @NotNull int points, Team team, League league) {
-		
+	public TeamParticipation(Integer teamParticipationId,
+			@NotNull(message = "Must register series!") @NotBlank(message = "Must register series!") String series,
+			@NotNull @NotBlank String group, @NotNull int ranking, @NotNull Double points, Team team, League league) {
+		super();
 		this.teamParticipationId = teamParticipationId;
 		this.series = series;
 		this.group = group;
@@ -56,7 +57,7 @@ public class TeamParticipation {
 	}
 
 	public TeamParticipation() {
-		
+		super();
 	}
 
 	public Integer getTeamParticipationId() {
@@ -91,11 +92,11 @@ public class TeamParticipation {
 		this.ranking = ranking;
 	}
 
-	public int getPoints() {
+	public Double getPoints() {
 		return points;
 	}
 
-	public void setPoints(int points) {
+	public void setPoints(Double points) {
 		this.points = points;
 	}
 
@@ -114,6 +115,5 @@ public class TeamParticipation {
 	public void setLeague(League league) {
 		this.league = league;
 	}
-	
 	
 }

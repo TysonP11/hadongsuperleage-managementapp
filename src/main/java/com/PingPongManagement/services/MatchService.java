@@ -1,6 +1,7 @@
 package com.PingPongManagement.services;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -14,72 +15,76 @@ import com.PingPongManagement.models.TeamParticipation;
 import com.PingPongManagement.repositories.MatchRepository;
 import com.PingPongManagement.repositories.TeamParticipationRepository;
 
-
 @Service
 public class MatchService {
 
 	@Autowired
 	private MatchRepository repository;
-	
+
 	@Autowired
 	private TeamParticipationRepository teamRepo;
-	
-	public List<Match> findMatchesByTeamId(Integer teamId){
+
+	public List<Match> findMatchesByTeamId(Integer teamId) {
 		List<TeamParticipation> teamParticipations = teamRepo.findByTeamTeamId(teamId);
-		
-		for( int i = 0; i<teamParticipations.size(); i++) {
+
+		for (int i = 0; i < teamParticipations.size(); i++) {
 			System.out.println(teamParticipations.get(i));
 		}
-		
+
 		List<Match> matches = new ArrayList<Match>();
-		
-		for(int i = 0; i<teamParticipations.size(); i++) {
-			List<Match> matchesHomeThatYear = repository.findByHomeTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
-			List<Match> matchesAwayThatYear = repository.findByAwayTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
-			
-			matches = Stream.concat(matches.stream(), matchesHomeThatYear.stream())
-	                .collect(Collectors.toList());
-			
-			matches = Stream.concat(matches.stream(), matchesAwayThatYear.stream())
-	                .collect(Collectors.toList());
+
+		for (int i = 0; i < teamParticipations.size(); i++) {
+			List<Match> matchesHomeThatYear = repository
+					.findByHomeTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
+			List<Match> matchesAwayThatYear = repository
+					.findByAwayTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
+
+			matches = Stream.concat(matches.stream(), matchesHomeThatYear.stream()).collect(Collectors.toList());
+
+			matches = Stream.concat(matches.stream(), matchesAwayThatYear.stream()).collect(Collectors.toList());
 		}
 		return matches;
 	}
-	
+
 	public List<Match> findMatchesByLeagueId(Integer leagueId) {
 		List<TeamParticipation> teamParticipations = teamRepo.findByLeagueLeagueId(leagueId);
-		
+
 		List<Match> matches = new ArrayList<Match>();
-		
-		for(int i = 0; i < teamParticipations.size(); i++) {
-			List<Match> matchesHomeThatYear = repository.findByHomeTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
-			List<Match> matchesAwayThatYear = repository.findByAwayTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
-			
-			matches = Stream.concat(matches.stream(), matchesHomeThatYear.stream())
-	                .collect(Collectors.toList());
-			
-			matches = Stream.concat(matches.stream(), matchesAwayThatYear.stream())
-	                .collect(Collectors.toList());
+
+		for (int i = 0; i < teamParticipations.size(); i++) {
+			List<Match> matchesHomeThatYear = repository
+					.findByHomeTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
+			List<Match> matchesAwayThatYear = repository
+					.findByAwayTeamParticipationId(teamParticipations.get(i).getTeamParticipationId());
+
+			matches = Stream.concat(matches.stream(), matchesHomeThatYear.stream()).collect(Collectors.toList());
+
+			matches = Stream.concat(matches.stream(), matchesAwayThatYear.stream()).collect(Collectors.toList());
 		}
-		return matches;
+
+		HashSet<Match> set = new HashSet<Match>();
+		set.addAll(matches);
+
+		List<Match> result = new ArrayList<>(set);
+		return result;
 	}
-	
+
 	public Match saveMatch(Match match) {
 		return repository.save(match);
 	}
-	
+
 	public List<Match> saveMatches(List<Match> matches) {
 		return repository.saveAll(matches);
 	}
-	
+
 	public Match getMatchById(Integer matchId) {
 		return repository.findById(matchId).orElseThrow(() -> new AppException("Match Not Found"));
 	}
-	
+
 	public void deleteMatchById(Integer matchId) {
 		repository.deleteById(matchId);
 	}
-	
+
 	private static String[] makeMatches(int n) {
 		int length = 0;
 		if (n == 0) {
@@ -147,7 +152,7 @@ public class MatchService {
 			return res;
 		}
 	}
-	
+
 	private static String[] chooseHome(String[] matches) {
 		String[] res = new String[matches.length];
 		for (int i = 0; i < matches.length; i++) {
@@ -249,52 +254,52 @@ public class MatchService {
 		}
 		return res;
 	}
-	
-	public List<Match> generateSchedule(List<TeamParticipation> teams){
+
+	public List<Match> generateSchedule(List<TeamParticipation> teams) {
 		int length = teams.size();
-		 String[] matches = makeMatches(length);
-		 String[] homeTeams = chooseHome(matches);		 
-		 int days = matches.length;
-		 
-		 for(int i = 0; i<days; i++) {
-			 for(int j = 0; j<matches[i].length(); j+=2) {
-				 if(matches[i].charAt(j) == '0' || matches[i].charAt(j+1) == '0') {
-					 StringBuilder sb = new StringBuilder(matches[i]);
-					 sb.deleteCharAt(j);
-					 sb.deleteCharAt(j+1);
-					 matches[i] = sb.toString();
-				 }
-			 }
-		 }
-		 List<Match> schedule = new ArrayList<Match>();
-		 
-		 for(int i = 0; i<days; i++) {
-			 for(int j = 0; j<homeTeams[i].length(); j++) {
-				 Match matchFirst = new Match();
-				 Match matchSecond = new Match();
-				 if(homeTeams[i].charAt(j) == matches[i].charAt(2*j)) {
-					 int home = Character.getNumericValue(matches[i].charAt(2*j)) - 1;
-					 int away = Character.getNumericValue(matches[i].charAt(2*j + 1)) - 1;
-					 matchFirst.setHome(teams.get(home));
-					 matchFirst.setAway(teams.get(away));
-					 matchSecond.setHome(teams.get(away));
-					 matchSecond.setAway(teams.get(home));
-				 } else if (homeTeams[i].charAt(j) == matches[i].charAt(2*j + 1)) {
-					 int home = Character.getNumericValue(matches[i].charAt(2*j + 1)) - 1;
-					 int away = Character.getNumericValue(matches[i].charAt(2*j)) - 1;
-					 matchFirst.setHome(teams.get(home));
-					 matchFirst.setAway(teams.get(away));
-					 matchSecond.setHome(teams.get(away));
-					 matchSecond.setAway(teams.get(home));
-				 }
-				 int round = i + 1;
-				 matchFirst.setRound("D" + round);
-				 matchSecond.setRound("V" + round);
-				 schedule.add(matchFirst);
-				 schedule.add(matchSecond);
-			 }
-		 }
+		String[] matches = makeMatches(length);
+		String[] homeTeams = chooseHome(matches);
+		int days = matches.length;
+
+		for (int i = 0; i < days; i++) {
+			for (int j = 0; j < matches[i].length(); j += 2) {
+				if (matches[i].charAt(j) == '0' || matches[i].charAt(j + 1) == '0') {
+					StringBuilder sb = new StringBuilder(matches[i]);
+					sb.deleteCharAt(j);
+					sb.deleteCharAt(j + 1);
+					matches[i] = sb.toString();
+				}
+			}
+		}
+		List<Match> schedule = new ArrayList<Match>();
+
+		for (int i = 0; i < days; i++) {
+			for (int j = 0; j < homeTeams[i].length(); j++) {
+				Match matchFirst = new Match();
+				Match matchSecond = new Match();
+				if (homeTeams[i].charAt(j) == matches[i].charAt(2 * j)) {
+					int home = Character.getNumericValue(matches[i].charAt(2 * j)) - 1;
+					int away = Character.getNumericValue(matches[i].charAt(2 * j + 1)) - 1;
+					matchFirst.setHome(teams.get(home));
+					matchFirst.setAway(teams.get(away));
+					matchSecond.setHome(teams.get(away));
+					matchSecond.setAway(teams.get(home));
+				} else if (homeTeams[i].charAt(j) == matches[i].charAt(2 * j + 1)) {
+					int home = Character.getNumericValue(matches[i].charAt(2 * j + 1)) - 1;
+					int away = Character.getNumericValue(matches[i].charAt(2 * j)) - 1;
+					matchFirst.setHome(teams.get(home));
+					matchFirst.setAway(teams.get(away));
+					matchSecond.setHome(teams.get(away));
+					matchSecond.setAway(teams.get(home));
+				}
+				int round = i + 1;
+				matchFirst.setRound("D" + round);
+				matchSecond.setRound("V" + round);
+				schedule.add(matchFirst);
+				schedule.add(matchSecond);
+			}
+		}
 		return repository.saveAll(schedule);
 	}
-	
+
 }

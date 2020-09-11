@@ -8,7 +8,6 @@ import java.time.Instant;
 import java.util.Date;
 
 @Entity
-
 public class Player {
 
 	@Id
@@ -142,6 +141,5 @@ public class Player {
 		this.image = image;
 	}
 	
-    
     
 }

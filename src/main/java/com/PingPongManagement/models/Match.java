@@ -36,8 +36,13 @@ public class Match {
 	
 	private Date date;
 	
+	private Double homeCurrentPoints;
 	
+	private Double awayCurrentPoints;
 	
+	private Double bonusPointsHome;
+	
+	private Double bonusPointsAway;
 	
 	private String gameResults;
 	

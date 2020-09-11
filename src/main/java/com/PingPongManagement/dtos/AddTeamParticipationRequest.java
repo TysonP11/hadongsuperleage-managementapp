@@ -24,7 +24,7 @@ public class AddTeamParticipationRequest {
 	private int ranking;
 	
 	@NotNull
-	private int points;
+	private Double points;
 
 	@NotNull
 	private Integer teamId;
@@ -34,7 +34,7 @@ public class AddTeamParticipationRequest {
 
 	public AddTeamParticipationRequest(
 			@NotNull(message = "Must register series!") @NotBlank(message = "Must register series!") String series,
-			@NotNull @NotBlank String group, @NotNull int ranking, @NotNull int points, @NotNull int teamId,
+			@NotNull @NotBlank String group, @NotNull int ranking, @NotNull Double points, @NotNull int teamId,
 			@NotNull int leagueId) {
 		
 		this.series = series;
@@ -73,11 +73,11 @@ public class AddTeamParticipationRequest {
 		this.ranking = ranking;
 	}
 
-	public int getPoints() {
+	public Double getPoints() {
 		return points;
 	}
 
-	public void setPoints(int points) {
+	public void setPoints(Double points) {
 		this.points = points;
 	}
 
